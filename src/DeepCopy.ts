@@ -33,8 +33,31 @@ export namespace DeepCopy {
      */
     export function deepCopy<T extends any>(source: T): T {
 
-        // TODO: implement this function from the above function definition.
-        return {} as T;
+        //null case
+        if (source === null) {
+            return source;
+          }
+
+          //array case
+          if (source instanceof Array) {
+            const copy = [] as any[];
+            (source as any[]).forEach((arrElement) => {
+                copy.push(arrElement);
+            });
+            return copy.map((val: any) => deepCopy<any>(val)) as any;
+          }
+          
+          //other cases
+          if (typeof source === "object" && source !== {}) {
+            const copy = { ...(source as { [key: string]: any }) } as {
+              [key: string]: any;
+            };
+            Object.keys(copy).forEach((key) => {
+                copy[key] = deepCopy<any>(copy[key]);
+            });
+            return copy as T;
+          }
+          return source;
     }
 
 }

@@ -25,7 +25,33 @@ export namespace TextMergeJoin {
      *
      */
     export function doMergeWords(data: ReadonlyArray<IPDFTextWord>): ReadonlyArray<IPDFTextWord> {
-        return [];
-    }
+
+        const copyData = JSON.parse(JSON.stringify(data));
+             function sorter(a:any, b:any) {
+                if (a.y < b.y) {
+                  if (a.x < b.x) {
+                    return -1;
+                  } else if (a.x > b.x) {
+                    return 1;
+                  }
+                }
+                if (a.y > b.y) {
+                 return -1
+                }
+                return 0
+            }
+            const returnData = copyData.sort(sorter);
+            for (let i = 0; i < returnData.length; i++) {
+                let result = returnData[i];
+                let count = i+1;
+                while (returnData[count].str[0] !== returnData[count].str[0].toUpperCase()){
+                  let nextWord = returnData[count].str;
+                  result.str = returnData[count].str+nextWord
+                  count++
+                }
+                returnData[i] = result;
+            }
+            return returnData;
+        }
 
 }

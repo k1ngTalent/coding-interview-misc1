@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 /**
  * Implement a replacement for useState which keeps values in the localStorage.
@@ -35,10 +35,58 @@ export function useLocalStorageState<V extends string>(key: string, initialValue
 
     // TODO: implement this code
 
-    const setter = React.useCallback((newValue: V) => {
-        // noop
-    }, [])
+    const reader = () => {
+        try {
+          const item = window.localStorage.getItem(key)
+          return item ? (jsonParser(item) as V) : initialValue
+        } catch (error) {
+          return initialValue
+        }
+      }
 
-    return [initialValue, setter];
+    const [value, setValue] = useState<V>(reader)
+
+
+
+    const setter = React.useCallback((newValue) => {
+        try {
+            // Save to local storage
+            window.localStorage.setItem(key, JSON.stringify(newValue))
+      
+            // Save state
+            setValue(newValue)
+      
+            // We dispatch a custom event so every useLocalStorage hook are notified
+            window.dispatchEvent(new Event('custom-local-storage'))
+          } catch (error) {
+            console.warn(`Error setting localStorage key “${key}”:`, error)
+          }
+    }, [value])
+
+  
+
+    useEffect(() => {
+        setValue(reader())
+      }, []);
+
+      const handleStorageChange = () => {
+        setValue(reader())
+      }
+    
+      useEffect(()=>{
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener("storage", handleStorageChange)
+        
+      },[])
+
+    return [value, setter];
 
 }
+
+function jsonParser<V>(value: string | null): V | undefined {
+    try {
+      return value === 'undefined' ? undefined : JSON.parse(value ?? '')
+    } catch (error) {
+      return undefined
+    }
+  }

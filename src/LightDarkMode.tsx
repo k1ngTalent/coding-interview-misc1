@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 /**
  *
@@ -17,22 +17,38 @@ import React from 'react';
 export const App = () => {
 
     return (
-        <Main/>
+        <Main />
     );
 
 }
 
 export type Theme = 'light' | 'dark';
 
-export type UseThemeToggler = (theme: Theme) => void;
+export type UseThemeToggler<Theme> = (theme:Theme) => void;
 
 export type UseTheme = () => Theme;
+
+type useModeType<Theme> = readonly [Theme, UseThemeToggler<Theme>];
+
+export function useMode(): useModeType<Theme> {
+    const [theme, setTheme] = useState<Theme>('light');
+
+    const toggleTheme = (theme:Theme) => {
+      if (theme === 'light') {
+        setTheme('dark')
+      } else {
+        setTheme('light')
+      }
+    };
+  
+    return [theme, toggleTheme]
+  };
 
 export const Main = () => {
 
     return (
         <div>
-            <Settings/>
+            <Settings />
         </div>
     );
 
@@ -40,12 +56,10 @@ export const Main = () => {
 
 export const Settings = () => {
 
-    const toggleMode = React.useCallback(() => {
-
-    }, []);
+    const [theme, toggleTheme] = useMode();
 
     return (
-        <button onClick={toggleMode}>toggle light/dark mode</button>
+        <button onClick={()=>{toggleTheme(theme)}}>toggle light/dark mode</button>
     );
 
 }
