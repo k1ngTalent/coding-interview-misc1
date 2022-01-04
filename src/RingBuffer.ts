@@ -36,7 +36,8 @@ export class RingBuffer<T> {
 
     public pop(): T | undefined {
         if (this.buffer.length > 0) {
-             this.buffer.slice(0,-1);
+             let item = this.buffer.pop();
+             return item;
           }
         return undefined;
     }
